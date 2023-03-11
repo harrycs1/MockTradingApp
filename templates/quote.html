@@ -5,12 +5,12 @@
 {% endblock %}
 
 {% block main %}
-    <h1> Get a Quote </h1>
+    <h1 class="drac-heading-2xl drac-text-white"> Get a Quote </h1>
     <form action="/quote" method="post">
         <div class="mb-3">
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="symbol" name="symbol" placeholder="Symbol" type="text" required>
         </div>
 
-        <button class="btn btn-primary" type="submit">Get Quote</button>
+        <button class="drac-btn drac-bg-purple-transparent drac-btn-ghost drac-text-white drac-m-sm drac-btn-lg" type="submit">Get Quote</button>
     </form>
 {% endblock %}

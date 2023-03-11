@@ -5,10 +5,10 @@
 {% endblock %}
 
 {% block main %}
-    <h1> Sell </h1>
+    <h1 class="drac-heading-2xl drac-text-white">Sell</h1>
         <form action="/sell" method="post">
         <div class="mb-3">
-            <label> Stock: </label>
+            <label class="drac-text-white"> Stock: </label>
             <select name="symbol" id="symbol">
                 <option disable d selected value=""> Select </option>
                 {% for row in names %}
@@ -20,6 +20,6 @@
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="shares" name="shares" placeholder="Number of shares..." type="text" required>
         </div>
 
-        <button class="btn btn-primary" type="submit">Sell</button>
+        <button class="drac-btn drac-bg-purple-transparent drac-btn-ghost drac-text-white drac-m-sm drac-btn-lg" type="submit">Sell</button>
     </form>
 {% endblock %}

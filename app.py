@@ -50,7 +50,7 @@ def index():
     """Show portfolio of stocks"""
     with con:
         cur = con.cursor()
-        cur.execute("SELECT symbol, SUM(shares) AS shares, SUM(total) AS total, (current_price * shares), name, current_price, ((current_price*shares) - total) FROM purchases WHERE buyer = ? GROUP BY symbol", [session["user_id"]])
+        cur.execute("SELECT symbol, SUM(shares) AS shares, SUM(total) AS total, (current_price * SUM(shares)), name, current_price, ((current_price*shares) - total) FROM purchases WHERE buyer = ? GROUP BY symbol HAVING sum(shares) > 0", [session["user_id"]])
         rows = cur.fetchall()
         cur.execute("SELECT cash FROM users WHERE id = ?", [session["user_id"]])
         cash_db = cur.fetchone()
@@ -113,7 +113,7 @@ def buy():
         time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         if amount_due > int(balance[0]):
-            return apology("Not enough cash, brokie")
+            return apology("Not enough cash")
         else:
             with con:
                 cur = con.cursor()
@@ -122,8 +122,7 @@ def buy():
                 cur.execute("UPDATE users SET cash = ? WHERE id = ?", (uptdCash, session["user_id"]))
                 #cur.execute("INSERT or REPLACE INTO current_stock_prices (stock_name, stock_symbol, current_price) VALUES(?, ?, ?)", (stock["name"], stock["symbol"], stock["price"]))
 
-            message = "Bought for $" + str(amount_due)  + "!"
-            flash(message)
+            flash(f"Bought for {usd(amount_due)}!")
             return redirect("/")
 
 
@@ -152,6 +151,9 @@ def addCash():
 
         if not newCash:
             return apology("Add deposit amount")
+        
+        if newCash < 0:
+            return apology("Deposit must be greater than zero")
 
         with con:
             cur = con.cursor()
@@ -163,8 +165,7 @@ def addCash():
             cur = con.cursor()
             cur.execute("UPDATE users SET cash = ? WHERE id = ?", (updtCash, session["user_id"]))
         
-        message = "Desposited $" + str(newCash) + "!"
-        flash(message)
+        flash(f"Deposited {usd(newCash)}!")
         return redirect("/addCash")
 
 
@@ -180,11 +181,11 @@ def login():
 
         # Ensure username was submitted
         if not request.form.get("username"):
-            return apology("must provide username", 403)
+            return apology("must provide username")
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            return apology("must provide password", 403)
+            return apology("must provide password")
 
         # Query database for username
         with con: 
@@ -194,7 +195,7 @@ def login():
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0][2], request.form.get("password")):
-            return apology("invalid username and/or password", 403)
+            return apology("invalid username and/or password")
 
         # Remember which user has logged in
         session["user_id"] = rows[0][0]
@@ -252,14 +253,14 @@ def register():
 
         for row in usernames:
             if username == row:
-                return apology("username already exists", 400)
+                return apology("username already exists")
 
 
         if not username:
-            return apology("username blank", 400)
+            return apology("username blank")
 
         if not password or password != confirmation:
-            return apology("password blank/does not match", 400)
+            return apology("password blank/does not match")
         else:
             with con:
                 con.execute("INSERT INTO users (username, hash) VALUES (?, ?)", (username, generate_password_hash(password)))
@@ -278,7 +279,7 @@ def sell():
     if request.method == "GET":
         with con:
             cur = con.cursor()
-            cur.execute("SELECT symbol FROM purchases WHERE buyer = ? GROUP BY name HAVING SUM(shares) > 0", [session["user_id"]])
+            cur.execute("SELECT symbol FROM purchases WHERE buyer = ? GROUP BY name HAVING SUM(shares) > 0 ORDER BY symbol ASC", [session["user_id"]])
             symbols = cur.fetchall()
         
         return render_template("sell.html", names = symbols)
@@ -322,6 +323,5 @@ def sell():
                 cur.execute("INSERT INTO purchases (buyer, name, symbol, price, shares, date, total, current_price) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", (session["user_id"], look["name"], look["symbol"], price, (-1*sharesToSell), time, (-1*transaction_value), look["price"]))
                 cur.execute("UPDATE users SET cash = ? WHERE id = ?", (updtCash, session["user_id"]))
 
-            message = "Sold for $" + str(transaction_value) + "!"
-            flash(message)
+            flash(f"Sold for {usd(transaction_value)}!")
             return redirect("/")

@@ -5,13 +5,13 @@
 {% endblock %}
 
 {% block main %}
-    <div>
-        <h1> {{symbol["name"]}} ({{symbol["symbol"]}}): {{symbol["price"]}} </h1>
+    <div class="drac-heading-2xl drac-text-white">
+        <h1> {{symbol["name"]}} ({{symbol["symbol"]}}): {{symbol["price"] | usd}} </h1>
     </div>
 
     <div>
         <form action="/quote">
-            <button class="btn btn-primary" type="submit">Return</button>
+            <button class="drac-btn drac-bg-purple-transparent drac-btn-ghost drac-text-white drac-m-sm drac-btn-lg" type="submit">Return</button>
         </form>
     </div>
 {% endblock %}

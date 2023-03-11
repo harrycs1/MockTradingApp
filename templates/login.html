@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block main %}
+    <h1 class="drac-heading-2xl drac-text-white">Log In</h1>
     <form action="/login" method="post">
         <div class="mb-3">
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text">
@@ -12,6 +13,6 @@
         <div class="mb-3">
             <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Password" type="password">
         </div>
-        <button class="btn btn-primary" type="submit">Log In</button>
+        <button class="drac-btn drac-bg-purple-transparent drac-btn-ghost drac-text-white drac-m-sm drac-btn-lg" type="submit">Log In</button>
     </form>
 {% endblock %}

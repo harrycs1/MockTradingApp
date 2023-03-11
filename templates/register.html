@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block main %}
+    <h1 class="drac-heading-2xl drac-text-white">Registration</h1>
     <form action="/register" method="post">
         <div class="mb-3">
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text" required>
@@ -15,6 +16,6 @@
         <div class="mb-3">
             <input class="form-control mx-auto w-auto" id="confirmation" name="confirmation" placeholder="Repeat password" type="password" required>
         </div>
-        <button class="btn btn-primary" type="submit">Register</button>
+        <button class="drac-btn drac-bg-animated drac-btn-ghost drac-text-white drac-m-sm drac-btn-lg" type="submit">Register</button>
     </form>
 {% endblock %}

@@ -5,12 +5,12 @@
 {% endblock %}
 
 {% block main %}
-    <h1> Add Cash <h2>
+    <h1 class="drac-heading-2xl drac-text-white"> Add Cash <h1>
     <form action="/addCash" method="post">
         <div class="mb-3">
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="newCash" name="newCash" placeholder="Amount..." type="number" required>
         </div>
 
-        <button class="btn btn-primary" type="submit">Deposit</button>
+        <button class="drac-btn drac-bg-purple-transparent drac-btn-ghost drac-text-white drac-m-sm drac-btn-lg" type="submit">Deposit</button>
     </form>
 {% endblock %}
