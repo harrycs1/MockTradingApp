@@ -50,7 +50,7 @@ def index():
     """Show portfolio of stocks"""
     with con:
         cur = con.cursor()
-        cur.execute("SELECT symbol, SUM(shares) AS shares, SUM(total) AS total, (current_price * SUM(shares)), name, current_price, ((current_price*shares) - total) FROM purchases WHERE buyer = ? GROUP BY symbol HAVING sum(shares) > 0", [session["user_id"]])
+        cur.execute("SELECT symbol, SUM(shares) AS shares, SUM(transaction_total), (current_price * SUM(shares)), name, current_price, ((current_price*shares) - transaction_total) FROM transactions WHERE buyer = ? GROUP BY symbol HAVING sum(shares) > 0", [session["user_id"]])
         rows = cur.fetchall()
         cur.execute("SELECT cash FROM users WHERE id = ?", [session["user_id"]])
         cash_db = cur.fetchone()
@@ -72,11 +72,11 @@ def index():
         stock_symbol = result["symbol"]
         with con:
             cur = con.cursor()
-            cur.execute("UPDATE purchases SET current_price = ? WHERE symbol = ?", (current_stock_price, stock_symbol))
+            cur.execute("UPDATE transactions SET current_price = ? WHERE symbol = ?", (current_stock_price, stock_symbol))
 
     with con:
         cur = con.cursor()
-        cur.execute("SELECT SUM(((current_price*shares)-total)) FROM purchases WHERE buyer = ?", [session["user_id"]])
+        cur.execute("SELECT IFNULL(SUM(((current_price*shares)-transaction_total)), 0) FROM transactions WHERE buyer = ? ", [session["user_id"]])
         sum_difference = cur.fetchone()[0]
 
     return render_template("index.html", database = rows, cash = cash_value, total = total, PL = sum_difference)
@@ -117,10 +117,9 @@ def buy():
         else:
             with con:
                 cur = con.cursor()
-                cur.execute("INSERT INTO purchases (buyer, name, symbol, price, shares, date, total, current_price) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", (session["user_id"], stock["name"], stock["symbol"], stock["price"], shares, time, amount_due, stock["price"]))
+                cur.execute("INSERT INTO transactions (buyer, name, symbol, transaction_price, shares, date, transaction_total, current_price) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", (session["user_id"], stock["name"], stock["symbol"], stock["price"], shares, time, amount_due, stock["price"]))
                 uptdCash = int(balance[0]) - amount_due
                 cur.execute("UPDATE users SET cash = ? WHERE id = ?", (uptdCash, session["user_id"]))
-                #cur.execute("INSERT or REPLACE INTO current_stock_prices (stock_name, stock_symbol, current_price) VALUES(?, ?, ?)", (stock["name"], stock["symbol"], stock["price"]))
 
             flash(f"Bought for {usd(amount_due)}!")
             return redirect("/")
@@ -134,7 +133,7 @@ def history():
     if request.method == "GET":
         with con:
             cur = con.cursor()
-            cur.execute("SELECT * FROM purchases WHERE buyer = ?", [session["user_id"]])
+            cur.execute("SELECT * FROM transactions WHERE buyer = ?", [session["user_id"]])
             userTransactions = cur.fetchall()
 
         return render_template("history.html", userTransactions = userTransactions)
@@ -279,7 +278,7 @@ def sell():
     if request.method == "GET":
         with con:
             cur = con.cursor()
-            cur.execute("SELECT symbol FROM purchases WHERE buyer = ? GROUP BY name HAVING SUM(shares) > 0 ORDER BY symbol ASC", [session["user_id"]])
+            cur.execute("SELECT symbol FROM transactions WHERE buyer = ? GROUP BY name HAVING SUM(shares) > 0 ORDER BY symbol ASC", [session["user_id"]])
             symbols = cur.fetchall()
         
         return render_template("sell.html", names = symbols)
@@ -296,7 +295,7 @@ def sell():
 
         with con:
             cur = con.cursor()
-            cur.execute("SELECT SUM(shares) AS shares FROM purchases WHERE symbol = ?", [stockToSell])
+            cur.execute("SELECT SUM(shares) AS shares FROM transactions WHERE symbol = ?", [stockToSell])
             userShares = cur.fetchone()
 
         shares = int(userShares[0])
@@ -320,7 +319,7 @@ def sell():
 
             with con:
                 cur = con.cursor()
-                cur.execute("INSERT INTO purchases (buyer, name, symbol, price, shares, date, total, current_price) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", (session["user_id"], look["name"], look["symbol"], price, (-1*sharesToSell), time, (-1*transaction_value), look["price"]))
+                cur.execute("INSERT INTO transactions (buyer, name, symbol, transaction_price, shares, date, transaction_total, current_price) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", (session["user_id"], look["name"], look["symbol"], price, (-1*sharesToSell), time, (-1*transaction_value), look["price"]))
                 cur.execute("UPDATE users SET cash = ? WHERE id = ?", (updtCash, session["user_id"]))
 
             flash(f"Sold for {usd(transaction_value)}!")
