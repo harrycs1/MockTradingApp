@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Purchase History
+{% endblock %}
+
+{% block main %}
+    <table class = "table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Name</th>
+                <th scope="col">Symbol</th>
+                <th scope="col">No. of Shares</th>
+                <th scope="col">Transaction Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in userTransactions %}
+            <tr>
+                <td>{{row[6]}}</td>
+                <td>{{row[2]}}</td>
+                <td>{{row[3]}}</td>
+                <td>{{row[5]}}</td>
+                <td>{{row[4] | usd}}</td>
+            </tr>
+            {%endfor%}
+        <tbody>
+        <tfoot>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <th scope="1">TOTAL</th>
+            </tr>    
+        </tfoot>
+    </table>
+{% endblock %}
