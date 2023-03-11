@@ -90,12 +90,15 @@ def buy():
         return render_template("buy.html")
     else:
         symbol = request.form.get("symbol")
-        shares = request.form.get("shares")
+        shares = int(request.form.get("shares"))
 
-        if not shares.isdigit():
+        if not symbol:
+            return apology("Must enter shares")
+
+        if not request.form.get("shares").isdigit():
             return apology("Can't buy fractional shares")
 
-        if not int(shares) or int(shares) < 0:
+        if not shares or shares < 0:
             return apology("Shares must be greater than zero")
 
         stock = lookup(symbol.upper())
@@ -103,23 +106,24 @@ def buy():
         if not stock:
             return apology("Symbol not found")
 
-        amount_due = stock["price"] * int(shares)
+        amount_due = stock["price"] * float(shares)
 
         with con:
             cur = con.cursor()
             cur.execute("SELECT cash FROM users WHERE id = ?", [session["user_id"]])
-            balance = cur.fetchall()[0]
+            balance = cur.fetchone()[0]
 
         time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        if amount_due > int(balance[0]):
-            return apology("Not enough cash")
+        if amount_due > balance:
+            return apology("Insufficient funds")
         else:
+            uptd_cash = balance - amount_due
+
             with con:
                 cur = con.cursor()
                 cur.execute("INSERT INTO transactions (buyer, name, symbol, transaction_price, shares, date, transaction_total, current_price) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", (session["user_id"], stock["name"], stock["symbol"], stock["price"], shares, time, amount_due, stock["price"]))
-                uptdCash = int(balance[0]) - amount_due
-                cur.execute("UPDATE users SET cash = ? WHERE id = ?", (uptdCash, session["user_id"]))
+                cur.execute("UPDATE users SET cash = ? WHERE id = ?", (uptd_cash, session["user_id"]))
 
             flash(f"Bought for {usd(amount_due)}!")
             return redirect("/")
