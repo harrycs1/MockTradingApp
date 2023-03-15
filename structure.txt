@@ -1,0 +1,21 @@
+mocktradingapp
+   ├── .venv/
+   ├── static/
+   │   ├── styles.css
+   │   └── dracula-ui.css
+   ├── templates/
+   │   ├── apology.html
+   │   ├── buy.html
+   │   ├── deposit.html
+   │   ├── history.html
+   │   ├── index.html
+   │   ├── layout.html
+   │   ├── login.html
+   │   ├── quote.html
+   │   ├── quoted.html
+   │   ├── register.html
+   │   └── sell.html
+   ├── app.py
+   ├── helpers.py
+   ├── finance.db
+   └── requirements.txt

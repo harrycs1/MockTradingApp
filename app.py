@@ -2,7 +2,6 @@ import os
 import datetime
 import sqlite3
 
-#from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
@@ -24,7 +23,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# create a Connection object that represents the SQLite database
+# Create a Connection object that represents the SQLite database
 con = sqlite3.connect("finance.db", check_same_thread=False)
 
 # Make sure API key is set
@@ -165,14 +164,14 @@ def history():
         return render_template("history.html", userTransactions = userTransactions)
 
 
-@app.route("/addCash", methods=["GET", "POST"])
+@app.route("/deposit", methods=["GET", "POST"])
 @login_required
-def addCash():
+def deposit():
     """Add more cash"""
 
     # User reached route via GET (as by clicking a link or via redirect)
     if request.method == "GET":
-        return render_template("addCash.html")
+        return render_template("deposit.html")
     
     # User reached route via POST (as by submitting a form via POST)
     else:
@@ -202,7 +201,7 @@ def addCash():
 
         # Show flash message upon complete deposit   
         flash(f"Deposited {usd(new_cash)}!")
-        return redirect("/addCash")
+        return redirect("/deposit")
 
 
 @app.route("/login", methods=["GET", "POST"])
